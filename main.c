@@ -6,8 +6,6 @@ int json_prettify(const char* json, char* out);
 
 int main(int argc, char* argv[]) {
 
-	printf("Executing..\n");
-
 	if (argc < 2) {
         fprintf(stderr, "Usage: ./%s <json_file>", argv[0]);
 		return 1;
@@ -44,8 +42,6 @@ int main(int argc, char* argv[]) {
 
 	printf("%s", buf);
 	free(buf);
-
-	printf("\nEnd of execution\n");
 
 	return 0;
 }
