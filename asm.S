@@ -19,10 +19,14 @@ output rsi
 */
 json_prettify:
 
+    push r12
+
     //Indentation counter
     mov r8, 0
 
     xor r11, r11 //Boolean if another array value is expected
+    xor r12, r12 //Boolean if object name check
+    xor r10, r10 //Boolean to check empty array/object, 1 is empty.
 
     //Push for the bottom level json file, TODO don't forget to pop this or fix RSP
     xor r9, r9
@@ -90,7 +94,7 @@ in_object:
     je object_close
 
     cmp r11, 1
-    je next_array_value
+    je next_object_value
     jmp array_element_error
 
 in_array:
@@ -143,6 +147,7 @@ array_open:
     mov al, [rdi]
 
     mov r11, 1
+    mov r10, 1
 
     inc r8  //Increment indentation counter
     xor r9, r9
@@ -160,6 +165,7 @@ object_open:
     mov al, [rdi]
 
     mov r11, 1
+    mov r10, 1
 
     inc r8  //Increment indentation counter
     xor r9, r9
@@ -178,6 +184,9 @@ array_close:
     inc rdi
     mov al, [rdi]
 
+    cmp r10, 1
+    je close_empty_structure
+
     //Check if array value is expected
     cmp r11, 1
     je structure_value_expected
@@ -186,16 +195,26 @@ array_close:
     add rsp, 8
     jmp value_check
 
+
 object_close:
     mov [rsi], al
     inc rsi
     inc rdi
     mov al, [rdi]
 
+    cmp r10, 1
+    je close_empty_structure
+
     //Check if array value is expected
     cmp r11, 1
     je structure_value_expected
 
+    add r8, -1
+    add rsp, 8
+    jmp value_check
+
+close_empty_structure:
+    mov r10, 0
     add r8, -1
     add rsp, 8
     jmp value_check
@@ -210,6 +229,83 @@ next_array_value:
     cmp al, '{'
     je object_open
 
+    jmp literal_check
+next_object_value:
+    mov r11, 0
+
+    cmp al, '"'
+    je object_name
+    jne object_expected_string_error
+
+object_name:
+    //parameter to set if currently is checking name
+    mov r12, 1
+    jmp string_check_start
+object_name_back:
+    mov r12, 0
+
+    mov al, [rdi]
+    cmp al, 0x20
+    je skip_whitespace_name
+    cmp al, 0x09
+    je skip_whitespace_name
+    cmp al, 0x0A
+    je skip_whitespace_name
+    cmp al, 0x0D
+    je skip_whitespace_name
+    jmp after_whitespace_name
+
+skip_whitespace_name:
+    inc rdi
+    mov al, [rdi]
+    cmp al, 0x20
+    je skip_whitespace_name
+    cmp al, 0x09
+    je skip_whitespace_name
+    cmp al, 0x0A
+    je skip_whitespace_name
+    cmp al, 0x0D
+    je skip_whitespace_name
+
+after_whitespace_name:
+    //Make sure that the next item is a colon
+    cmp al, ':'
+    jne no_colon_after_name
+
+    //print colon
+    mov [rsi], al
+    inc rsi
+    inc rdi
+    mov al, [rdi]
+
+    mov al, [rdi]
+    cmp al, 0x20
+    je skip_whitespace_colon
+    cmp al, 0x09
+    je skip_whitespace_colon
+    cmp al, 0x0A
+    je skip_whitespace_colon
+    cmp al, 0x0D
+    je skip_whitespace_colon
+    jmp after_whitespace_colon
+
+skip_whitespace_colon:
+    inc rdi
+    mov al, [rdi]
+    cmp al, 0x20
+    je skip_whitespace_colon
+    cmp al, 0x09
+    je skip_whitespace_colon
+    cmp al, 0x0A
+    je skip_whitespace_colon
+    cmp al, 0x0D
+    je skip_whitespace_colon
+after_whitespace_colon:
+    cmp al, '['
+    je array_open
+
+    cmp al, '{'
+    je object_open
 /*
 =======================================================================================================================
 LITERAL, STRING, NUMBER CHECKS
@@ -270,14 +366,19 @@ end_of_data:
     mov rax, 0
     jmp end
 back_literal_check:
+    mov r10, 0
     jmp value_check
 number_check_exit:
     mov [rsi], al
     inc rsi
     inc rdi
     mov al, [rdi]
+    mov r10, 0
     jmp value_check
 string_check_exit:
+    cmp r12, 1
+    mov r10, 0
+    je object_name_back
     jmp value_check
 invalid_number_check:
     mov rax, -2
@@ -333,9 +434,17 @@ string_check_invalid_unescaped_character:
 structure_value_expected:
     mov rax, 17
     jmp end
+object_expected_string_error:
+    mov rax, 18
+    jmp end
+no_colon_after_name:
+    mov rax, 19
+    jmp end
 end:
     //Pop base value json indicator TODO
     add rsp, 8
+
+    pop r12
     ret
 /*
 =======================================================================================================================
