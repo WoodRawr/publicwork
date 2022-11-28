@@ -121,6 +121,11 @@ array_comma:
     inc rsi
     inc rdi
     mov al, [rdi]
+
+    mov al, 0x0A
+    mov [rsi], al
+    inc rsi
+    mov al, [rdi]
     
     //Check if array value is expected
     cmp r11, 1
@@ -146,6 +151,11 @@ array_open:
     inc rdi
     mov al, [rdi]
 
+    mov al, 0x0A
+    mov [rsi], al
+    inc rsi
+    mov al, [rdi]
+
     mov r11, 1
     mov r10, 1
 
@@ -164,6 +174,11 @@ object_open:
     inc rdi
     mov al, [rdi]
 
+    mov al, 0x0A
+    mov [rsi], al
+    inc rsi
+    mov al, [rdi]
+
     mov r11, 1
     mov r10, 1
 
@@ -179,6 +194,12 @@ skip_whitespace:
     jmp value_check
 
 array_close:
+
+    mov al, 0x0A
+    mov [rsi], al
+    inc rsi
+    mov al, [rdi]
+
     mov [rsi], al
     inc rsi
     inc rdi
@@ -197,6 +218,12 @@ array_close:
 
 
 object_close:
+
+    mov al, 0x0A
+    mov [rsi], al
+    inc rsi
+    mov al, [rdi]
+
     mov [rsi], al
     inc rsi
     inc rdi
