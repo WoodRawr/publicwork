@@ -215,6 +215,8 @@ object_close:
 
 close_empty_structure:
     mov r10, 0
+    mov r11, 0
+
     add r8, -1
     add rsp, 8
     jmp value_check
