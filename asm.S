@@ -443,7 +443,22 @@ no_colon_after_name:
     mov rax, 19
     jmp end
 end:
-    //Pop base value json indicator TODO
+
+    cmp r8, 0
+    jne indentations_not_all_escaped
+    jmp wrap_up
+
+indentations_not_all_escaped:
+//In case of an error, pop out all the indentation pushes first.
+    mov rax, 20
+    cmp r8, 0
+    je wrap_up
+    add rsp, 8
+    add r8, -1
+    jmp indentations_not_all_escaped
+wrap_up:
+
+    //Pop base value json indicator
     add rsp, 8
 
     pop r12
