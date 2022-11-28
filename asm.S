@@ -68,7 +68,31 @@ STRUCTURE CHECKS
     push r9
     cmp r9, ']'
     je in_array
+
+    cmp r9, '}'
+    je in_object
+
     jmp not_array
+in_object:
+     //Skip through all whitespace
+    cmp al, 0x20
+    je skip_whitespace
+    cmp al, 0x09
+    je skip_whitespace
+    cmp al, 0x0A
+    je skip_whitespace
+    cmp al, 0x0D
+    je skip_whitespace
+
+    cmp al, ','
+    je array_comma
+    cmp al, '}'
+    je object_close
+
+    cmp r11, 1
+    je next_array_value
+    jmp array_element_error
+
 in_array:
     //Skip through all whitespace
     cmp al, 0x20
@@ -94,6 +118,10 @@ array_comma:
     inc rdi
     mov al, [rdi]
     
+    //Check if array value is expected
+    cmp r11, 1
+    je structure_value_expected
+
     //Boolean if a value is expected, 1 is another array value expected, otherwise not.
     mov r11, 1
     jmp value_check
@@ -103,6 +131,10 @@ not_array:
     */
     cmp al, '['
     je array_open
+
+    cmp al, '{'
+    je object_open
+
     jmp no_array_open
 array_open:
     mov [rsi], al
@@ -121,6 +153,21 @@ array_open:
 
     jmp value_check
 
+object_open:
+    mov [rsi], al
+    inc rsi
+    inc rdi
+    mov al, [rdi]
+
+    mov r11, 1
+
+    inc r8  //Increment indentation counter
+    xor r9, r9
+    mov r9, '}' //push closing bracket in
+    push r9 //#WARNING TODO: ALL THE PUSHED ELEMENTS NEED TO BE POPPED IN THE CASE OF AN ERROR
+
+    jmp value_check
+
 skip_whitespace:
     inc rdi
     jmp value_check
@@ -131,15 +178,37 @@ array_close:
     inc rdi
     mov al, [rdi]
 
+    //Check if array value is expected
+    cmp r11, 1
+    je structure_value_expected
+
     add r8, -1
     add rsp, 8
     jmp value_check
+
+object_close:
+    mov [rsi], al
+    inc rsi
+    inc rdi
+    mov al, [rdi]
+
+    //Check if array value is expected
+    cmp r11, 1
+    je structure_value_expected
+
+    add r8, -1
+    add rsp, 8
+    jmp value_check
+
 no_array_open:
 next_array_value:
     mov r11, 0
 
     cmp al, '['
     je array_open
+
+    cmp al, '{'
+    je object_open
 
 /*
 =======================================================================================================================
@@ -260,6 +329,9 @@ string_check_escaped_character_invalid:
     jmp end
 string_check_invalid_unescaped_character:
     mov rax, 15
+    jmp end
+structure_value_expected:
+    mov rax, 17
     jmp end
 end:
     //Pop base value json indicator TODO

@@ -1,5 +1,7 @@
-[    null ,     [[null,"HELL!!O"], 4333], 43.0001232323e+0054  ,   ".123"    ,    
- "helloworld"     ,     null    ,     true    ,  false,"true","\u0a1B",0,0,5]
+{ null ,  {"weewoo", "\u12a4",3.14e-10}  , [[null,"HELL!!O"], 4333], 43.0001232323e+0054  ,   ".123"    ,    
+ "helloworld"     ,     null    ,     true    ,  false,"true","\u0a1B",0,0,5}
  
  
-             []
+             ["hello! ","WEWWWWW))",
+             "wh\nat"
+             ]
