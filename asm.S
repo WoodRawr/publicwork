@@ -115,12 +115,18 @@ array_close:
 no_array_open:
 next_array_value:
     mov r11, 0
-    /*
-    Literal check
-    */
+
     cmp al, '['
     je array_open
 
+/*
+=======================================================================================================================
+LITERAL, STRING, NUMBER CHECKS
+=======================================================================================================================
+*/
+    /*
+    Literal check
+    */
 literal_check:
     cmp al, 'f'
     je literal_check_false
