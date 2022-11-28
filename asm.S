@@ -18,6 +18,17 @@ input rdi
 output rsi
 */
 json_prettify:
+
+    //Indentation counter
+    mov r8, 0
+
+    xor r11, r11 //Boolean if another array value is expected
+
+    //Push for the bottom level json file, TODO don't forget to pop this or fix RSP
+    xor r9, r9
+    mov r9, ' '
+    push r9
+
     //Move first character to al
     mov al, [rdi]
 value_check:
@@ -30,8 +41,86 @@ value_check:
     je end_of_data
 
     /*
+    Check if current value check is in array, and re-push into r9
+    */
+    pop r9
+    push r9
+    cmp r9, ']'
+    je in_array
+    jmp not_array
+in_array:
+    //Skip through all whitespace
+    cmp al, 0x20
+    je skip_whitespace
+    cmp al, 0x09
+    je skip_whitespace
+    cmp al, 0x0A
+    je skip_whitespace
+    cmp al, 0x0D
+    je skip_whitespace
+
+    cmp al, ','
+    je array_comma
+    cmp al, ']'
+    je array_close
+
+    cmp r11, 1
+    je next_array_value
+    jmp array_element_error
+array_comma:
+    mov [rsi], al
+    inc rsi
+    inc rdi
+    mov al, [rdi]
+    
+    //Boolean if a value is expected, 1 is another array value expected, otherwise not.
+    mov r11, 1
+    jmp value_check
+not_array:
+    /*
+    Array check
+    */
+    cmp al, '['
+    je array_open
+    jmp no_array_open
+array_open:
+    mov [rsi], al
+    inc rsi
+    inc rdi
+    mov al, [rdi]
+
+    mov r11, 1
+
+    inc r8  //Increment indentation counter
+    xor r9, r9
+    mov r9, ']' //push closing bracket in
+    push r9 //#WARNING TODO: ALL THE PUSHED ELEMENTS NEED TO BE POPPED IN THE CASE OF AN ERROR
+    
+    //add rsp, 8 //TODO: This is how you clear the remaining stack, multiplied by the amount of indentations
+
+    jmp value_check
+
+skip_whitespace:
+    inc rdi
+    jmp value_check
+array_close:
+    mov [rsi], al
+    inc rsi
+    inc rdi
+    mov al, [rdi]
+
+    add r8, -1
+    add rsp, 8
+    jmp value_check
+no_array_open:
+next_array_value:
+    mov r11, 0
+    /*
     Literal check
     */
+    cmp al, '['
+    je array_open
+
 literal_check:
     cmp al, 'f'
     je literal_check_false
@@ -73,6 +162,9 @@ not_number_check:
 RETURNS
 =======================================================================================================================
 */
+array_element_error:
+    mov rax, 16
+    jmp end
 invalid_character:
 //If you land here, comment the error code below to see the last character read!
     mov rax, -42
@@ -142,6 +234,8 @@ string_check_invalid_unescaped_character:
     mov rax, 15
     jmp end
 end:
+    //Pop base value json indicator TODO
+    add rsp, 8
     ret
 /*
 =======================================================================================================================

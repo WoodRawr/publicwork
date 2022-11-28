@@ -1,1 +1,1 @@
-null43.0001232323e+0054".123""helloworld"nulltruefalse"true""\u0a1B"005
+[    null ,     [null, 4333], 43.0001232323e+0054 ,    ".123"    ,     "helloworld"     ,     null    ,     true    ,  false,"true","\u0a1B",0,0,5]
