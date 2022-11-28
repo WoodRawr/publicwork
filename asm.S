@@ -26,7 +26,7 @@ value_check:
     /*
     EOF check
     */
-    cmp al, '$'
+    cmp al, 0x00
     je end_of_data
 
     /*
@@ -74,7 +74,8 @@ RETURNS
 =======================================================================================================================
 */
 invalid_character:
-    //mov rax, -42
+//If you land here, comment the error code below to see the last character read!
+    mov rax, -42
     jmp end
 end_of_data:
     mov rax, 0
