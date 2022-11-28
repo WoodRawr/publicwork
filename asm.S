@@ -36,6 +36,20 @@ value_check:
 
 /*
 =======================================================================================================================
+SKIP WHITESPACES
+=======================================================================================================================
+*/
+    cmp al, 0x20
+    je skip_whitespace
+    cmp al, 0x09
+    je skip_whitespace
+    cmp al, 0x0A
+    je skip_whitespace
+    cmp al, 0x0D
+    je skip_whitespace
+
+/*
+=======================================================================================================================
 EOF CHECK
 =======================================================================================================================
 */
@@ -110,6 +124,7 @@ array_open:
 skip_whitespace:
     inc rdi
     jmp value_check
+
 array_close:
     mov [rsi], al
     inc rsi
@@ -180,7 +195,7 @@ array_element_error:
     jmp end
 invalid_character:
 //If you land here, comment the error code below to see the last character read!
-    mov rax, -42
+    //mov rax, -42
     jmp end
 end_of_data:
     mov rax, 0
