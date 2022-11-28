@@ -22,6 +22,13 @@ json_prettify:
     mov al, [rdi]
 value_check:
     mov al, [rdi]
+
+    /*
+    EOF check
+    */
+    cmp al, '$'
+    je end_of_data
+
     /*
     Literal check
     */
@@ -49,19 +56,26 @@ number_check:
     cmp al, '0'
     je number_check_start_zero
     cmp al, '1' 
-    jl invalid_number_check
+    jae number_check_upper_bound
+    jmp not_number_check
+number_check_upper_bound:
     cmp al, '9'
-    jg invalid_number_check
-    jmp number_check_start_number //TODO ERROR HERE
+    ja not_number_check
+    jmp number_check_start_number
 
-    cmp al, '$'
-    je end_of_data
-
+not_number_check:
+    /*
+    Fail
+    */
+   jmp invalid_character
 /*
 =======================================================================================================================
 RETURNS
 =======================================================================================================================
 */
+invalid_character:
+    //mov rax, -42
+    jmp end
 end_of_data:
     mov rax, 0
     jmp end
@@ -299,9 +313,6 @@ number_check_start_number:
     inc rdi
     mov al, [rdi]
 
-    cmp al, '}'
-    je number_check_exit
-
     cmp al, 'e'
     je number_check_exponent
     cmp al, 'E'
@@ -311,10 +322,14 @@ number_check_start_number:
     je number_check_decimal
 
     cmp al, '0'
-    jb number_check_not_valid_after_first_integer
+    jae number_check_after_first_integer_upper_bound
+    jmp value_check
+number_check_after_first_integer_upper_bound:
     cmp al, '9'
-    ja number_check_not_valid_after_first_integer
+    ja value_check
     jmp number_check_after_first_integer
+
+    
 
 number_check_start_zero:
     mov [rsi], al
@@ -322,9 +337,6 @@ number_check_start_zero:
     inc rdi
     mov al, [rdi]
 
-    cmp al, '}'
-    je number_check_exit
-
     cmp al, 'e'
     je number_check_exponent
     cmp al, 'E'
@@ -333,16 +345,13 @@ number_check_start_zero:
     cmp al, '.'
     je number_check_decimal
 
-    jmp number_check_not_valid_after_zero
+    jmp value_check
 
 number_check_after_first_integer:
     mov [rsi], al
     inc rsi
     inc rdi
     mov al, [rdi]
-
-    cmp al, '}'
-    je number_check_exit
 
     cmp al, 'e'
     je number_check_exponent
@@ -353,9 +362,11 @@ number_check_after_first_integer:
     je number_check_decimal
 
     cmp al, '0'
-    jb number_check_not_valid_after_first_integer
+    jae number_check_not_valid_after_first_integer_upper_bound
+    jmp value_check
+number_check_not_valid_after_first_integer_upper_bound:
     cmp al, '9'
-    ja number_check_not_valid_after_first_integer
+    ja value_check
     jmp number_check_after_first_integer
 
 number_check_exponent:
@@ -395,13 +406,12 @@ number_check_after_exponent:
     inc rdi
     mov al, [rdi]
 
-    cmp al, '}'
-    je number_check_exit
-
     cmp al, '0'
-    jl number_check_not_valid_after_exponent_sign
+    jae number_check_not_valid_after_exponent_sign_upper_bound
+    jmp value_check
+number_check_not_valid_after_exponent_sign_upper_bound:
     cmp al, '9'
-    jg number_check_not_valid_after_exponent_sign
+    ja value_check
 
     jmp number_check_after_exponent
 
@@ -424,18 +434,17 @@ number_check_after_decimal:
     inc rdi
     mov al, [rdi]
 
-    cmp al, '}'
-    je number_check_exit
-
     cmp al, 'e'
     je number_check_exponent
     cmp al, 'E'
     je number_check_exponent
 
     cmp al, '0'
-    jl number_check_not_valid_after_decimal
+    jae number_check_not_valid_after_decimal_upper_bound
+    jmp value_check
+number_check_not_valid_after_decimal_upper_bound:
     cmp al, '9'
-    jg number_check_not_valid_after_decimal
+    ja number_check_not_valid_after_decimal
 
     jmp number_check_after_decimal
 
