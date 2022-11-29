@@ -12,8 +12,8 @@ Whitespace
 0x09              ; Horizontal tab
 0x0A              ; Line feed or New line
 0x0D              ; Carriage return
+*/
 /*
-
 input rdi
 output rsi
 */
@@ -356,6 +356,8 @@ array_close:
     inc rsi
     mov al, [rdi]
 
+    cmp r11, 1
+    je cannot_close_structure_yet
        /*
     Indenting
     */
@@ -592,7 +594,7 @@ array_element_error:
     jmp end
 invalid_character:
 //If you land here, comment the error code below to see the last character read!
-    //mov rax, -42
+    mov rax, 200
     jmp end
 end_of_data:
     mov rax, 0
@@ -613,10 +615,10 @@ string_check_exit:
     je object_name_back
     jmp value_check
 invalid_number_check:
-    mov rax, -2
+    mov rax, 250
     jmp end
 not_valid_case:
-    mov rax, -1
+    mov rax, 150
     jmp end
 literal_error_false:
     mov rax, 1
@@ -672,6 +674,9 @@ object_expected_string_error:
 no_colon_after_name:
     mov rax, 19
     jmp end
+cannot_close_structure_yet:
+    mov rax, 300
+    jmp end
 end:
 
     cmp r8, 0
@@ -689,9 +694,17 @@ indentations_not_all_escaped:
 wrap_up:
 
     push rbx
+    
     xor rbx, rbx
     mov bl, 0x0a
     mov [rsi], bl
+    inc rsi
+    
+    xor rbx, rbx
+    mov bl, 0x00
+    mov [rsi], bl
+    inc rsi
+    
     pop rbx
 
     //Pop base value json indicator
@@ -737,7 +750,7 @@ string_check_unescaped_character_first:
     jbe string_check_valid_unescaped_character
     jmp string_check_unescaped_character_not_first
 string_check_unescaped_character_second:
-    cmp al, 0x10FFFF
+    cmp al, 0xFF
     jbe string_check_valid_unescaped_character
     jmp string_check_unescaped_character_not_second
 
@@ -1099,7 +1112,3 @@ literal_check_null:
     inc rdi
     inc rsi
     jmp back_literal_check
-
-
-
-
