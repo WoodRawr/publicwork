@@ -151,6 +151,45 @@ array_open:
     inc rdi
     mov al, [rdi]
 
+    /*
+    Skip through all whitespace in array first
+    */
+    mov al, [rdi]
+    cmp al, 0x20
+    je skip_whitespace_array
+    cmp al, 0x09
+    je skip_whitespace_array
+    cmp al, 0x0A
+    je skip_whitespace_array
+    cmp al, 0x0D
+    je skip_whitespace_array
+    jmp after_whitespace_array
+
+skip_whitespace_array:
+    inc rdi
+    mov al, [rdi]
+    cmp al, 0x20
+    je skip_whitespace_array
+    cmp al, 0x09
+    je skip_whitespace_array
+    cmp al, 0x0A
+    je skip_whitespace_array
+    cmp al, 0x0D
+    je skip_whitespace_array
+after_whitespace_array:
+
+    cmp al, ']'
+    je empty_array
+    jmp not_empty_array
+empty_array:
+    mov [rsi], al
+    inc rsi
+    inc rdi
+    mov al, [rdi]
+
+    jmp value_check
+
+not_empty_array:
     mov al, 0x0A
     mov [rsi], al
     inc rsi
@@ -173,6 +212,46 @@ object_open:
     inc rsi
     inc rdi
     mov al, [rdi]
+
+//     /*
+//     Skip through all whitespace in object first
+//     */
+//     mov al, [rdi]
+//     cmp al, 0x20
+//     je skip_whitespace_object
+//     cmp al, 0x09
+//     je skip_whitespace_object
+//     cmp al, 0x0A
+//     je skip_whitespace_object
+//     cmp al, 0x0D
+//     je skip_whitespace_object
+//     jmp after_whitespace_object
+
+// skip_whitespace_object:
+//     inc rdi
+//     mov al, [rdi]
+//     cmp al, 0x20
+//     je skip_whitespace_object
+//     cmp al, 0x09
+//     je skip_whitespace_object
+//     cmp al, 0x0A
+//     je skip_whitespace_object
+//     cmp al, 0x0D
+//     je skip_whitespace_object
+// after_whitespace_object:
+
+//     cmp al, ']'
+//     je empty_object
+//     jmp not_empty_object
+// empty_object:
+//     mov [rsi], al
+//     inc rsi
+//     inc rdi
+//     mov al, [rdi]
+
+//     jmp value_check
+
+// not_empty_object:
 
     mov al, 0x0A
     mov [rsi], al

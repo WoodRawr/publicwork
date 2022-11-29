@@ -5,6 +5,10 @@
 "ppu":0.55,
 "batters":{
 "batter":[
+[],
+{
+
+},
 {
 "id":"1001",
 "type":"Regular"
