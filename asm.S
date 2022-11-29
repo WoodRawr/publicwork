@@ -213,45 +213,45 @@ object_open:
     inc rdi
     mov al, [rdi]
 
-//     /*
-//     Skip through all whitespace in object first
-//     */
-//     mov al, [rdi]
-//     cmp al, 0x20
-//     je skip_whitespace_object
-//     cmp al, 0x09
-//     je skip_whitespace_object
-//     cmp al, 0x0A
-//     je skip_whitespace_object
-//     cmp al, 0x0D
-//     je skip_whitespace_object
-//     jmp after_whitespace_object
+    /*
+    Skip through all whitespace in object first
+    */
+    mov al, [rdi]
+    cmp al, 0x20
+    je skip_whitespace_object
+    cmp al, 0x09
+    je skip_whitespace_object
+    cmp al, 0x0A
+    je skip_whitespace_object
+    cmp al, 0x0D
+    je skip_whitespace_object
+    jmp after_whitespace_object
 
-// skip_whitespace_object:
-//     inc rdi
-//     mov al, [rdi]
-//     cmp al, 0x20
-//     je skip_whitespace_object
-//     cmp al, 0x09
-//     je skip_whitespace_object
-//     cmp al, 0x0A
-//     je skip_whitespace_object
-//     cmp al, 0x0D
-//     je skip_whitespace_object
-// after_whitespace_object:
+skip_whitespace_object:
+    inc rdi
+    mov al, [rdi]
+    cmp al, 0x20
+    je skip_whitespace_object
+    cmp al, 0x09
+    je skip_whitespace_object
+    cmp al, 0x0A
+    je skip_whitespace_object
+    cmp al, 0x0D
+    je skip_whitespace_object
+after_whitespace_object:
 
-//     cmp al, ']'
-//     je empty_object
-//     jmp not_empty_object
-// empty_object:
-//     mov [rsi], al
-//     inc rsi
-//     inc rdi
-//     mov al, [rdi]
+    cmp al, '}'
+    je empty_object
+    jmp not_empty_object
+empty_object:
+    mov [rsi], al
+    inc rsi
+    inc rdi
+    mov al, [rdi]
 
-//     jmp value_check
+    jmp value_check
 
-// not_empty_object:
+not_empty_object:
 
     mov al, 0x0A
     mov [rsi], al
