@@ -126,6 +126,27 @@ array_comma:
     mov [rsi], al
     inc rsi
     mov al, [rdi]
+
+    /*
+    Indenting
+    */
+    push rbx
+    mov rbx, 0
+indenting_array_comma:
+    cmp rbx, r8
+    je indenting_done_array_comma
+    mov rax, 0x20202020
+    mov [rsi], rax
+    add rsi, 4
+    xor rax, rax
+    mov al, [rdi]
+    inc rbx
+    jmp indenting_array_comma
+indenting_done_array_comma:
+    pop rbx
+    /*
+    Indenting done
+    */
     
     //Check if array value is expected
     cmp r11, 1
@@ -195,6 +216,33 @@ not_empty_array:
     inc rsi
     mov al, [rdi]
 
+    mov rax, 0x20202020
+    mov [rsi], rax
+    add rsi, 4
+    xor rax, rax
+    mov al, [rdi]
+
+       /*
+    Indenting
+    */
+    push rbx
+    mov rbx, 0
+indenting_not_empty_array:
+    cmp rbx, r8
+    je indenting_done_not_empty_array
+    mov rax, 0x20202020
+    mov [rsi], rax
+    add rsi, 4
+    xor rax, rax
+    mov al, [rdi]
+    inc rbx
+    jmp indenting_not_empty_array
+indenting_done_not_empty_array:
+    pop rbx
+    /*
+    Indenting done
+    */
+
     mov r11, 1
     mov r10, 1
 
@@ -253,10 +301,39 @@ empty_object:
 
 not_empty_object:
 
+
+
     mov al, 0x0A
     mov [rsi], al
     inc rsi
     mov al, [rdi]
+
+    mov rax, 0x20202020
+    mov [rsi], rax
+    add rsi, 4
+    xor rax, rax
+    mov al, [rdi]
+
+       /*
+    Indenting
+    */
+    push rbx
+    mov rbx, 0
+indenting_not_empty_object:
+    cmp rbx, r8
+    je indenting_done_not_empty_object
+    mov rax, 0x20202020
+    mov [rsi], rax
+    add rsi, 4
+    xor rax, rax
+    mov al, [rdi]
+    inc rbx
+    jmp indenting_not_empty_object
+indenting_done_not_empty_object:
+    pop rbx
+    /*
+    Indenting done
+    */
 
     mov r11, 1
     mov r10, 1
@@ -278,6 +355,27 @@ array_close:
     mov [rsi], al
     inc rsi
     mov al, [rdi]
+
+       /*
+    Indenting
+    */
+    push rbx
+    mov rbx, 1
+indenting_array_close:
+    cmp rbx, r8
+    je indenting_done_array_close
+    mov rax, 0x20202020
+    mov [rsi], rax
+    add rsi, 4
+    xor rax, rax
+    mov al, [rdi]
+    inc rbx
+    jmp indenting_array_close
+indenting_done_array_close:
+    pop rbx
+    /*
+    Indenting done
+    */
 
     mov [rsi], al
     inc rsi
@@ -302,6 +400,27 @@ object_close:
     mov [rsi], al
     inc rsi
     mov al, [rdi]
+
+       /*
+    Indenting
+    */
+    push rbx
+    mov rbx, 1
+indenting_object_close:
+    cmp rbx, r8
+    je indenting_done_object_close
+    mov rax, 0x20202020
+    mov [rsi], rax
+    add rsi, 4
+    xor rax, rax
+    mov al, [rdi]
+    inc rbx
+    jmp indenting_object_close
+indenting_done_object_close:
+    pop rbx
+    /*
+    Indenting done
+    */
 
     mov [rsi], al
     inc rsi
@@ -384,6 +503,11 @@ after_whitespace_name:
     mov [rsi], al
     inc rsi
     inc rdi
+    mov al, [rdi]
+
+    mov al, ' '
+    mov [rsi], al
+    inc rsi
     mov al, [rdi]
 
     mov al, [rdi]
