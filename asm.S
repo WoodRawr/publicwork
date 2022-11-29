@@ -29,9 +29,9 @@ json_prettify:
     xor r10, r10 //Boolean to check empty array/object, 1 is empty.
 
     //Push for the bottom level json file, TODO don't forget to pop this or fix RSP
-    xor r9, r9
-    mov r9, ' '
-    push r9
+    mov dl, ' '
+    sub rsp, 1
+    mov [rsp], dl
 
     //Move first character to al
     mov al, [rdi]
@@ -68,12 +68,11 @@ STRUCTURE CHECKS
     /*
     Check if current value check is in array, and re-push into r9
     */
-    pop r9
-    push r9
-    cmp r9, ']'
+    mov dl, [rsp]
+    cmp dl, ']'
     je in_array
 
-    cmp r9, '}'
+    cmp dl, '}'
     je in_object
 
     jmp not_array
@@ -247,9 +246,10 @@ indenting_done_not_empty_array:
     mov r10, 1
 
     inc r8  //Increment indentation counter
-    xor r9, r9
-    mov r9, ']' //push closing bracket in
-    push r9 //#WARNING TODO: ALL THE PUSHED ELEMENTS NEED TO BE POPPED IN THE CASE OF AN ERROR
+    xor rdx, rdx
+    mov dl, ']' //push closing bracket in
+    sub rsp, 1
+    mov [rsp], dl //#WARNING TODO: ALL THE PUSHED ELEMENTS NEED TO BE POPPED IN THE CASE OF AN ERROR
     
     //add rsp, 8 //TODO: This is how you clear the remaining stack, multiplied by the amount of indentations
 
@@ -339,9 +339,10 @@ indenting_done_not_empty_object:
     mov r10, 1
 
     inc r8  //Increment indentation counter
-    xor r9, r9
-    mov r9, '}' //push closing bracket in
-    push r9 //#WARNING TODO: ALL THE PUSHED ELEMENTS NEED TO BE POPPED IN THE CASE OF AN ERROR
+    xor rdx, rdx
+    mov dl, '}' //push closing bracket in
+    sub rsp, 1
+    mov [rsp], dl //#WARNING TODO: ALL THE PUSHED ELEMENTS NEED TO BE POPPED IN THE CASE OF AN ERROR
 
     jmp value_check
 
@@ -392,7 +393,7 @@ indenting_done_array_close:
     je structure_value_expected
 
     add r8, -1
-    add rsp, 8
+    add rsp, 1
     jmp value_check
 
 
@@ -437,7 +438,7 @@ indenting_done_object_close:
     je structure_value_expected
 
     add r8, -1
-    add rsp, 8
+    add rsp, 1
     jmp value_check
 
 close_empty_structure:
@@ -445,7 +446,7 @@ close_empty_structure:
     mov r11, 0
 
     add r8, -1
-    add rsp, 8
+    add rsp, 1
     jmp value_check
 
 no_array_open:
@@ -688,7 +689,7 @@ indentations_not_all_escaped:
     mov rax, 20
     cmp r8, 0
     je wrap_up
-    add rsp, 8
+    add rsp, 1
     add r8, -1
     jmp indentations_not_all_escaped
 wrap_up:
@@ -708,7 +709,7 @@ wrap_up:
     pop rbx
 
     //Pop base value json indicator
-    add rsp, 8
+    add rsp, 1
 
     pop r12
     ret
