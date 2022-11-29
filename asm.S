@@ -131,17 +131,17 @@ array_comma:
     */
     push rbx
     mov rbx, 0
+    mov rax, 0x20202020
 indenting_array_comma:
     cmp rbx, r8
     je indenting_done_array_comma
-    mov rax, 0x20202020
     mov [rsi], rax
     add rsi, 4
-    xor rax, rax
-    mov al, [rdi]
     inc rbx
     jmp indenting_array_comma
 indenting_done_array_comma:
+	xor rax, rax
+    mov al, [rdi]
     pop rbx
     /*
     Indenting done
@@ -226,17 +226,17 @@ not_empty_array:
     */
     push rbx
     mov rbx, 0
+     mov rax, 0x20202020
 indenting_not_empty_array:
     cmp rbx, r8
     je indenting_done_not_empty_array
-    mov rax, 0x20202020
     mov [rsi], rax
     add rsi, 4
-    xor rax, rax
-    mov al, [rdi]
     inc rbx
     jmp indenting_not_empty_array
 indenting_done_not_empty_array:
+	xor rax, rax
+    mov al, [rdi]
     pop rbx
     /*
     Indenting done
@@ -411,17 +411,19 @@ object_close:
     */
     push rbx
     mov rbx, 1
+    mov rax, 0x20202020
 indenting_object_close:
     cmp rbx, r8
     je indenting_done_object_close
-    mov rax, 0x20202020
     mov [rsi], rax
     add rsi, 4
-    xor rax, rax
-    mov al, [rdi]
     inc rbx
     jmp indenting_object_close
 indenting_done_object_close:
+	
+    xor rax, rax
+    mov al, [rdi]
+
     pop rbx
     /*
     Indenting done
