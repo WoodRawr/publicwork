@@ -688,6 +688,12 @@ indentations_not_all_escaped:
     jmp indentations_not_all_escaped
 wrap_up:
 
+    push rbx
+    xor rbx, rbx
+    mov bl, 0x0a
+    mov [rsi], bl
+    pop rbx
+
     //Pop base value json indicator
     add rsp, 8
 
