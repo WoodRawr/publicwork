@@ -246,6 +246,8 @@ indenting_done_not_empty_array:
     mov r10, 1
 
     inc r8  //Increment indentation counter
+    cmp r8, 1001
+    je maximum_recursion
     xor rdx, rdx
     mov dl, ']' //push closing bracket in
     sub rsp, 1
@@ -301,8 +303,6 @@ empty_object:
 
 not_empty_object:
 
-
-
     mov al, 0x0A
     mov [rsi], al
     inc rsi
@@ -339,6 +339,8 @@ indenting_done_not_empty_object:
     mov r10, 1
 
     inc r8  //Increment indentation counter
+    cmp r8, 1001
+    je maximum_recursion
     xor rdx, rdx
     mov dl, '}' //push closing bracket in
     sub rsp, 1
@@ -678,8 +680,10 @@ no_colon_after_name:
 cannot_close_structure_yet:
     mov rax, 300
     jmp end
+maximum_recursion:
+    mov rax, 999
+    jmp end
 end:
-
     cmp r8, 0
     jne indentations_not_all_escaped
     jmp wrap_up
